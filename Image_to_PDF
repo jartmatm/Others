@@ -1,0 +1,32 @@
+from PIL import Image
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
+
+image_path = filedialog.askopenfilename(
+    title="Select an Image to convert to PDF",
+    filetypes=[("Image Files", "*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.gif")]
+)
+
+if image_path:
+    img = Image.open(image_path)
+
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+
+    base_width =1100
+    w_percent = (base_width / float(img.size[0]))
+    h_size = int((float(img.size[1]) * float(w_percent)))
+    img = img.resize((base_width, h_size), Image.Resampling.LANCZOS)
+
+    pdf_path = filedialog.asksaveasfilename(
+        defaultextension=".pdf",
+        filetypes=[("PDF Files", "*.pdf")],
+        title="Save as PDF"
+    )
+
+    if pdf_path:
+        
+        img.save(pdf_path, "PDF", resolution=600.0, quality=98)
