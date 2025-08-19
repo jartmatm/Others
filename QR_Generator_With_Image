@@ -1,0 +1,46 @@
+from PIL import Image
+import qrcode
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
+
+data = input("Enter the data for the QR code: ")
+
+qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
+qr.add_data(data)
+qr.make(fit=True)
+
+qr_image = qr.make_image(fill_color="black", back_color="white").convert('RGBA')
+
+print("Select the watermark image...")
+watermark_path = filedialog.askopenfilename(
+    title="Select Watermark",
+    filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
+)
+
+if watermark_path:  
+    watermark = Image.open(watermark_path)
+#watermark = Image.open('C:/Users/jessi/Downloads/360--65-QC_Quayclean_RGB.png')
+
+watermark_size = (qr_image.size[0] // 4, qr_image.size[1] // 4)
+watermark = watermark.resize(watermark_size, Image.Resampling.LANCZOS)
+
+pos = ((qr_image.size[0] - watermark_size[0]) // 2,
+       (qr_image.size[1] - watermark_size[1]) // 2)
+
+qr_image.paste(watermark, pos, watermark)
+
+       # Guardar resultado
+save_path = filedialog.asksaveasfilename(
+              defaultextension=".png",
+              filetypes=[("PNG files", "*.png")],
+              title="Save QR with watermark"
+       )
+
+if save_path:
+              qr_image.save(save_path)
+              print(f"QR code saved at: {save_path}")
+else:
+              print("Save cancelled")
